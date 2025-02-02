@@ -9,7 +9,7 @@ Overall concept is to predefine the speed and the steps for the stepper, and let
 
 The precise spinning time is calculated, upfront the stepper activation, allowing to be ready with a new set of instructions for the following run.
 
-Depending on the microprocess used, this implementation is accurate for pulses frequency between 20Hz and 5KHz (RP2040) or between 20Hz and 15KHz (RP2350). The common Nema 17 steppers, with 200 pulses per revolution and controlled with 1/8 microsteps, very likely do not require more than 5KHz in most of the applications.
+Depending on the microprocess used, this implementation is accurate for pulses frequency between 50Hz and 5KHz (RP2040) or between 10Hz and 15KHz (RP2350). The common Nema 17 steppers, with 200 pulses per revolution and controlled with 1/8 microsteps, very likely do not require more than 5KHz in most of the applications.
 
 
 ## Features
