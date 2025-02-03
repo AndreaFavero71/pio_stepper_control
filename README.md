@@ -28,7 +28,8 @@ PIO counter accuracy (as implemented):
   - RP2350: does not miss any step for stepper frequency between 10Hz and 15KHz.
   - RP2040: does not miss any step for stepper frequency between 50Hz and 5KHz.
   - RP2040: up to 1% missed steps for frequency between 5KHz and 10KHz.
-  RP2350 is clearly more accurate than RP2040.
+  
+RP2350 is clearly more accurate than RP2040.
 
 Each datapoint in below chart is the error % out of of 200 runs, each of them with a number of pulses randomly picked between 5 and 20:
  
