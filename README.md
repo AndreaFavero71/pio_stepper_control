@@ -1,11 +1,11 @@
 # Accurate stepper motor control, based on micropython and  PIO 
 
-Suitable for RP2040 or RP2350 (Raspberry Pi Pico, Pico2, RP2040-Zero, RP2350-Zero, etc).
+This code is for RP2040 or RP2350 microprocessors, as it leverages on the PIO feature; Boards with these micros are Raspberry Pi Pico, Pico2, RP2040-Zero, RP2350-Zero, and many others.
 
 I'm working on a project with stepper motors and RP2040 microprocessor and I realized this stepper motor's control (Class) might be useful to other makers.
 
 
-Overall concept is to predefine the speed and the steps for the stepper, and let it running in open loop ... by trusting it stops once those steps are made!
+The overall concept is to predefine the speed and the steps for the stepper, and let it running in open loop ... by trusting it stops once those steps are made!
 
 The precise spinning time is calculated, upfront the stepper activation, allowing to be ready with a new set of instructions for the following run.
 
@@ -31,7 +31,7 @@ PIO counter accuracy (as implemented):
   
 RP2350 is clearly more accurate than RP2040.
 
-Each datapoint in below chart is the error % out of of 200 runs, each of them with a number of pulses randomly picked between 5 and 20:
+In below chart, each datapoint is the error % out of of 200 motor activation runs, wherein each activation run had a random number of pulses between 5 and 20; In other words each point reppresents about 2500 stepper'steps:
  
   ![title image](/images/accuracy.jpg)
  
@@ -44,8 +44,9 @@ Each datapoint in below chart is the error % out of of 200 runs, each of them wi
 
 
 ## Notes
-In case of Raspbeery Pi Pico board (not the W or Pico 2 versions), the onboard led blinks at the steps frequency as vsual feedback.
+In the examples provided, in case of Raspbeery Pi Pico board (not the W or Pico 2 versions), the onboard led blinks at the steps frequency as visual feedback. On the other boards the onboard led is not directly connected to a 'normal' GPIO pin.
 
-Feel free to use this code.
+Feel free to use this code, to mdify it according to your need, and to feedback in case of improvements proposals.
+
 Of course, using this code is at your own risk :-)
 
