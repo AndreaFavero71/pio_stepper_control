@@ -23,6 +23,11 @@ Depending on the microprocess used, this implementation is accurate for pulses f
   - pre-encoded istructions to the PIO (>100 times faster)
 
 
+## Demo
+[![Watch the Demo](https://img.youtube.com/vi/ZdNAM-4AH98/0.jpg)](https://www.youtube.com/watch?v=ZdNAM-4AH98)
+
+
+
 ## Accuracy
 PIO counter accuracy (as implemented):
   - RP2350: does not miss any step for stepper frequency between 10Hz and 15KHz.
