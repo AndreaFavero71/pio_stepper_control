@@ -30,9 +30,9 @@ Showcase objective: Having the stepper motor stopping at the start position, wit
  - relatively high motor speed (> 2 revs/s).
  - stop position at 360 degrees (1600 pulses) away from the start position.
 
+[![Watch the Demo](https://i.ytimg.com/vi/ZdNAM-4AH98/maxresdefault.jpg)](https://www.youtube.com/watch?v=ZdNAM-4AH98)
 
-[![Watch the Demo](https://img.youtube.com/vi/ZdNAM-4AH98/0.jpg)](https://www.youtube.com/watch?v=ZdNAM-4AH98)
-![Track](/images/Chart_image_16_9_50.PNG)
+![Track](/images/chart_image.PNG)
 
 Test setup:
  - 3 NEMA 17 stepper motors
