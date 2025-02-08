@@ -32,6 +32,7 @@ Showcase objective: Having the stepper motor stopping at the start position, wit
 
 
 [![Watch the Demo](https://img.youtube.com/vi/ZdNAM-4AH98/0.jpg)](https://www.youtube.com/watch?v=ZdNAM-4AH98)
+![Track](/images/chart_image.png)
 
 Test setup:
  - 3 NEMA 17 stepper motors
