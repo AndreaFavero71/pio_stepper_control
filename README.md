@@ -23,12 +23,28 @@ Depending on the microprocess used, this implementation is accurate for pulses f
   - pre-encoded istructions to the PIO (>100 times faster)
 
 
-## Demo
+## Showcasing video
+Showcase objective: Having the stepper motor stopping at the start position, with:
+ - 52800 steps in total.
+ - 126 direction changes.
+ - relatively high motor speed (> 2 revs/s).
+ - stop position at 360 degrees (1600 pulses) away from the start position.
+
+
 [![Watch the Demo](https://img.youtube.com/vi/ZdNAM-4AH98/0.jpg)](https://www.youtube.com/watch?v=ZdNAM-4AH98)
 
+Test setup:
+ - 3 NEMA 17 stepper motors
+ - Motors are 200 pulses/rev set to 1/8 microstep: 1600 pulses/rev.
+ - Each motor controlled by an RP2040-Zero board.
+ - Commands (speed, steps) sent via I2C from a Raspberry Pi to the 3 RP2040-Zero boards.
+ - Direction calculated at RP2040-Zero, if below/above a threshold (2^16 // 2).
+ - Effective speed calculated at RP2040-Zero, as absolute difference from threshold (2^16 // 2).
 
 
-## Accuracy
+
+
+## PIO counter accuracy
 PIO counter accuracy (as implemented):
   - RP2350: does not miss any step for stepper frequency between 10Hz and 15KHz.
   - RP2040: does not miss any step for stepper frequency between 50Hz and 5KHz.
