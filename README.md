@@ -11,6 +11,7 @@ The precise spinning time is calculated, upfront the stepper activation, allowin
 
 Depending on the microprocess used, this implementation is accurate for pulses frequency between 50Hz and 5KHz (RP2040) or between 10Hz and 15KHz (RP2350). The common Nema 17 steppers, with 200 pulses per revolution and controlled with 1/8 microsteps, very likely do not require more than 5KHz in most of the applications.
 
+<br><br>
 
 ## Features
   - min and max stepper frequency can be defined upfront: Suitable PIO frequency is calculated according to the min and max stepper frequency.
@@ -22,6 +23,7 @@ Depending on the microprocess used, this implementation is accurate for pulses f
   - stepper rotation time is (precisely) calculated in the main loop, upfront the stepper activation.
   - pre-encoded istructions to the PIO (>100 times faster)
 
+<br><br>
 
 ## Showcasing video
 Showcase objective: Having the stepper motor stopping at the start position, with:
@@ -40,7 +42,7 @@ Test setup:
  - Each motor controlled by an RP2040-Zero board.
  - Commands (speed, steps) sent via I2C from a Raspberry Pi to the 3 RP2040-Zero boards.
  - Direction calculated at RP2040-Zero, if below/above a threshold (2^16 // 2).
- - Effective speed calculated at RP2040-Zero, as absolute difference from threshold (2^16 // 2).
+ - Effective speed calculated at RP2040-Zero, as absolute difference from threshold (2^16 // 2).<br><br><br>
 
 
 
@@ -57,13 +59,14 @@ In below chart, each datapoint is the error % out of of 200 motor activation run
  
   ![title image](/images/accuracy.jpg)
  
-
+<br><br>
 
 ## Installation
 1. Copy `\src\stepper.py` to your Raspberry Pi Pico.
 2. Copy one of the exaples to your Raspberry Pi Pico folder.
 2. Run the script in MicroPython.
 
+<br><br>
 
 ## Notes
 In the examples provided, in case of Raspbeery Pi Pico board (not the W or Pico 2 versions), the onboard led blinks at the steps frequency as visual feedback. On the other boards the onboard led is not directly connected to a 'normal' GPIO pin.
