@@ -1,5 +1,5 @@
 """
-Andrea Favero 02/02/2025
+Andrea Favero 09/02/2025
 
 Micropython code for Raspberry Pi Pico (RP2040 and RP2350)
 It demonstrates how to use PIO functions to control a stepper motor:
@@ -60,10 +60,13 @@ if __name__ == "__main__":
     Each random frequency is tested for a number of tests (RUNS)
     """
     
-
+    # defining the GPIO pin to be used by PIO for steps generation and steps counting
+    PIN = 25                                # 25 is the onboard led when Rpi Pico (base version)
+    
+    
     # defining the range of frequency for steps counter accuracy test
     MIN_STEPPER_FREQUENCY = 200             # minimum stepper frequency to test
-    MAX_STEPPER_FREQUENCY = 15000           # maximum stepper frequency to test
+    MAX_STEPPER_FREQUENCY = 300             # maximum stepper frequency to test
     
     
     # defining the number of steps per each of the test run
@@ -79,7 +82,6 @@ if __name__ == "__main__":
     RUN_PRINTOUT = False                    # prints consitions and results at each run
     PRINT_SUMMARY = True                    # prints the summary of each run
     PRINT_LISTS = True                      # prints the list with most relevant test data
-    print_once = True                       # flags for one time printing
     
     # parameters based on the implemented StateMachine0 (sm0), responsable for the steps generation
     PIO_FIX = 37                            # number of PIO commands that are always done
@@ -91,14 +93,50 @@ if __name__ == "__main__":
     error_list = []                         # list to store the errors
     
         
-    # sanity check
-    if MIN_STEPPER_FREQUENCY > MAX_STEPPER_FREQUENCY:
-        print("\nThe MIN_STEPPER_FREQUENCY must be <= MAX_STEPPER_FREQUENCY\n")
-        sys.exit(1)          # exit with a non-zero status to indicate an error
-    
-    
+
     try:
-    
+        
+        # sanity check on entered parameters
+        errors = 0
+        if MIN_STEPPER_FREQUENCY > MAX_STEPPER_FREQUENCY:
+            print("\nThe MIN_STEPPER_FREQ must be <= MAX_STEPPER_FREQ\n")
+            errors == 1
+        if MAX_STEPPER_FREQUENCY < 0:
+            print("\nThe MAX_STEPPER_FREQ must be >0\n")
+            errors == 1
+        if MIN_PIO_STEPS > MAX_PIO_STEPS:
+            print("\nThe MIN_PIO_STEPS must be <= MAX_PIO_STEPS\n")
+            errors == 1
+        if errors:
+            sys.exit(1)                         # exit with a non-zero status to indicate an error
+            
+        
+        # reference for the test timing
+        test_start_time = time.time()
+        
+        
+        # estimating test time
+        avg_steps = (MIN_PIO_STEPS + MAX_PIO_STEPS) / 2
+        minimum_expected_time_s = 0
+        max_expected_time_s = 0
+        if RUN_PRINTOUT:
+            minimum_expected_time_s += RUNS * (PAUSE_BETWEEN_RUNS + 0.1 + avg_steps / MAX_STEPPER_FREQUENCY)
+            max_expected_time_s += RUNS * (PAUSE_BETWEEN_RUNS + 0.2 + avg_steps / MIN_STEPPER_FREQUENCY)
+        else:
+            minimum_expected_time_s += RUNS * (0.08 + avg_steps / MAX_STEPPER_FREQUENCY)
+            max_expected_time_s += RUNS * (0.1 + avg_steps / MIN_STEPPER_FREQUENCY)
+        
+        hours = minimum_expected_time_s // 3600
+        minutes = (minimum_expected_time_s % 3600) // 60
+        secs = minimum_expected_time_s % 60
+        minimum_estimated_test_time = "{:02}:{:02}:{:02}". format(hours, minutes, round(secs,0))
+        
+        hours = max_expected_time_s // 3600
+        minutes = (max_expected_time_s % 3600) // 60
+        secs = max_expected_time_s % 60
+        max_estimated_test_time = "{:02}:{:02}:{:02}". format(hours, minutes, round(secs,0))
+        
+        
         # determining wich board_type is used
         board_info = os.uname()
         
@@ -140,24 +178,24 @@ if __name__ == "__main__":
         max_pio_val = int(round((max_step_period_ms * pio_frequency - 1000 * PIO_FIX) / (1000 * PIO_VAR)))
         min_generator_frequency_hz = int(1000 / max_step_period_ms)
         
-   
+
         # shell printouts for the initializaion part
-        if SLOW_INIT:
-            print("\nInitializing the stepper Class ...")
-            print("PIO steps generator initialized at {:d} Hz:".format(pio_frequency))
-            if print_once:
-                print_once = False   
-                print("Onboard led blinks slowly for a few times during initialization")
-                if board_type == 'RP2040':
-                    print("\nDuring testing the led visibility and blinking depends on test parameters\n\n")   
-        else:
-            if print_once:
-                print("\nTest started ...")
-                print_once = False
+        print("\nTest duration depends on number of runs and steps (increases with low frequency).")
+        print("Estimated test time (hh:mm:ss), between {} and {}".format(minimum_estimated_test_time, max_estimated_test_time))
+        print("Test started ...")
+        print("\nInitializing the stepper Class ...")
+        print("PIO steps generator initialized at {:d} Hz:".format(pio_frequency))
+        print("Onboard led blinks slowly for a few times during initialization")
+        if board_type == 'RP2040':
+            print("\n(Raspberry Pi Pico only) During testing the led visibility and blinking depends on test parameters")   
+
+            
+
         
         
         # stepper Class instantiatiation
-        stepper = Stepper(max_freq = max_pio_frequency,
+        stepper = Stepper(pio_pin = PIN,
+                          max_freq = max_pio_frequency,
                           freq = pio_frequency,
                           slow_init = SLOW_INIT)
         
@@ -300,6 +338,17 @@ if __name__ == "__main__":
             print("Frequency list:", freq_list)
             print("Error list:", error_list)
             print()
+        
+        
+        print("\nTest concluded")
+        
+        # effective test time
+        finish_time = time.time()
+        tot_test_time_s = finish_time - test_start_time
+        hours = tot_test_time_s // 3600
+        minutes = (tot_test_time_s % 3600) // 60
+        secs = tot_test_time_s % 60
+        print("Effective test time (hh:mm:ss): {:02}:{:02}:{:02}". format(hours, minutes, round(secs,0)))
             
             
     # handling exceptiond

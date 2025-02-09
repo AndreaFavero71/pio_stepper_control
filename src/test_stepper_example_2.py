@@ -1,5 +1,5 @@
 """
-Andrea Favero 02/02/2025
+Andrea Favero 09/02/2025
 
 Micropython code for Raspberry Pi Pico (RP2040 and RP2350)
 It demonstrates how to use PIO functions to control a stepper motor:
@@ -61,11 +61,13 @@ if __name__ == "__main__":
     Each frequency is tested for a number of tests (RUNS).
     """
     
+    # defining the GPIO pin to be used by PIO for steps generation and steps counting
+    PIN = 25                                # 25 is the onboard led when Rpi Pico (base version)
 
     # defining the range of frequency for steps counter accuracy test
     MIN_TEST_FREQ = 500                     # minimum stepper frequency to test
-    MAX_TEST_FREQ = 3000                    # maximum stepper frequency to test
-    STEP_FREQ = 100                         # frequency step between max and min test frequency
+    MAX_TEST_FREQ = 15000                   # maximum stepper frequency to test
+    STEP_FREQ = 500                         # frequency step between max and min test frequency
     
     # defining the number of steps per each of the test run
     MIN_PIO_STEPS = 5                       # min number of steps to test at each run (random pick between min and max)
@@ -73,7 +75,7 @@ if __name__ == "__main__":
     
     # defining the number of runs per each of the test frequency
     RUNS = int(200)                         # number of test runs per each frequency
-    PAUSE_BETWEEN_RUNS = 0.4                # sleep time (s) between each run
+    PAUSE_BETWEEN_RUNS = 0.4                # sleep time (s) between each run (when RUN_PRINTOUT, otherwise is 0)
     
     # defining the visual feedback 
     SLOW_INIT = False                       # enables onboard (RP2040) led blinking to feedback the PIO initialization
@@ -93,15 +95,41 @@ if __name__ == "__main__":
     
     try:  
         
-        # sanity check
+        # sanity check on entered parameters
+        errors = 0
         if MIN_TEST_FREQ > MAX_TEST_FREQ:
             print("\nThe MIN_STEPPER_FREQ must be <= MAX_STEPPER_FREQ\n")
+            errors == 1
+        if MIN_PIO_STEPS > MAX_PIO_STEPS:
+            print("\nThe MIN_PIO_STEPS must be <= MAX_PIO_STEPS\n")
+            errors == 1
+        if errors:
             sys.exit(1)                         # exit with a non-zero status to indicate an error
+        
+        
+        # reference for the test timing
+        test_start_time = time.time()
+        
+        
+        # estimating test time
+        avg_steps = (MIN_PIO_STEPS + MAX_PIO_STEPS) / 2
+        expected_time_s = 0
+        for frequency in range(MAX_TEST_FREQ, MIN_TEST_FREQ - STEP_FREQ, -STEP_FREQ):
+            if frequency > 0:
+                if RUN_PRINTOUT:
+                    expected_time_s += 0.05 + RUNS * (PAUSE_BETWEEN_RUNS + 0.2 + avg_steps / frequency)
+                else:
+                    expected_time_s += 0.05 + RUNS * (0.1 + avg_steps / frequency)
+        hours = expected_time_s // 3600
+        minutes = (expected_time_s % 3600) // 60
+        secs = expected_time_s % 60
+        estimated_test_time = "{:02}:{:02}:{:02}". format(hours, minutes, round(secs,0))
+        
         
         # determining wich microprocessor is used
         board_info = os.uname()
         
-        # assigning max PIO frequency
+        # assigning max PIO frequency (based on microprocessor)
         if '2040' in board_info.machine:
             microprocessor = 'RP2040'
             max_pio_frequency = 125_000_000
@@ -114,9 +142,14 @@ if __name__ == "__main__":
         
         print("\nCode running in a board with {} microprocessor".format(microprocessor))
         
-        
+                    
         # iteration over the different frequencies
         for freq in range(MAX_TEST_FREQ, MIN_TEST_FREQ - STEP_FREQ, -STEP_FREQ):
+            
+            # sanity check
+            if freq == 0:
+                print("\nSkipped the iteration for frequency = 0Hz")
+                break
             
             
             # parameters to modify accordint to the test interest
@@ -142,12 +175,6 @@ if __name__ == "__main__":
             min_generator_frequency_hz = int(1000 / max_step_period_ms)
             
             
-            # sanity check
-            if MIN_STEPPER_FREQUENCY > MAX_STEPPER_FREQUENCY:
-                print("\nThe MIN_STEPPER_FREQUENCY must be <= MAX_STEPPER_FREQUENCY\n")
-                sys.exit(1)          # exit with a non-zero status to indicate an error
-            
-            
             # shell printouts for the initializaion part
             if SLOW_INIT:
                 print("\nInitializing the stepper Class ...")
@@ -157,14 +184,17 @@ if __name__ == "__main__":
                     print("Onboard led blinks slowly for a few times during initialization")
                     if board_type == 'RP2040':
                         print("\nDuring testing the led visibility and blinking depends on test parameters\n\n")   
-            else:
-                if print_once:
-                    print("\nTest started ...")
-                    print_once = False
+
+            if print_once:
+                print("\nTest duration depends on number of frequencies, runs and steps (increases with low frequency).")
+                print("Estimated test time (hh:mm:ss):", estimated_test_time)
+                print("Test started ...")
+                print_once = False
             
             
             # stepper Class instantiatiation
-            stepper = Stepper(max_freq = max_pio_frequency,
+            stepper = Stepper(pio_pin = PIN,
+                              max_freq = max_pio_frequency,
                               freq = pio_frequency,
                               slow_init = SLOW_INIT)
             
@@ -178,7 +208,7 @@ if __name__ == "__main__":
             min_pio_val_passed = 10 * min_pio_val     # reset the min value passed to the PIO
             
             
-            t_start = time.ticks_ms()                 # time reference for all runs
+            t_start = time.ticks_ms()                 # time reference for all runs of each freq
             
             
             # iteration over the test RUNS for the set frequency
@@ -255,11 +285,11 @@ if __name__ == "__main__":
                 min_pio_val_passed = min(min_pio_val_passed, speed)
                 
                 
-                # sleep time for runs separation time
-                t_ref2 = time.ticks_ms()
-                while 1000 * (time.ticks_ms()-t_ref2) < PAUSE_BETWEEN_RUNS:
-                    time.sleep(0.02)
+                # sleep time for runs separation time, when printing individual RUN's results
                 if RUN_PRINTOUT:
+                    t_ref2 = time.ticks_ms()
+                    while time.ticks_ms()-t_ref2 < 1000 * PAUSE_BETWEEN_RUNS:
+                        time.sleep(0.02)
                     print("\n")
             
             
@@ -304,12 +334,24 @@ if __name__ == "__main__":
             
             # printing out the results
             if PRINT_LISTS:
-                print("\nFreq:",freq_list[-1], "\tError:", error_list[-1])
+                print("\nFrequency {}Hz completed with {}% errors".format(freq_list[-1], round(error_list[-1],2)))
                 print("Frequency list:", freq_list)
                 print("Error list:", error_list)
+        
             
-            
-    #handling exceptiond
+        print("\nTest concluded")
+        
+        # effective test time
+        finish_time = time.time()
+        tot_test_time_s = finish_time - test_start_time
+        hours = tot_test_time_s // 3600
+        minutes = (tot_test_time_s % 3600) // 60
+        secs = tot_test_time_s % 60
+        print("Effective test time (hh:mm:ss): {:02}:{:02}:{:02}". format(hours, minutes, round(secs,0)))
+        
+        
+        
+    #handling exceptions
     except KeyboardInterrupt:              # keyboard interrupts
         print("\nCtrl+C detected! ...")
         
@@ -320,6 +362,7 @@ if __name__ == "__main__":
     finally:                               # deactivating the PIO
         if "stepper" in locals():
             stepper.deactivate_pio()
-        print("\nTest concluded")
+#         
+        
 
 

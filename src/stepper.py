@@ -1,5 +1,5 @@
 """
-Andrea Favero 02/02/2025
+Andrea Favero 09/02/2025
 
 Micropython code for Raspberry Pi Pico (RP2040 and RP2350)
 It demonstrates how to use PIO functions to control a stepper motor:
@@ -58,7 +58,7 @@ import time, random
 
 class Stepper:
     
-    def __init__(self,  max_freq=125000000, freq=5000000, slow_init=True):
+    def __init__(self, pio_pin = 25, max_freq=125000000, freq=5000000, slow_init=True):
         """
         Initialize the Stepper class.
         
@@ -68,11 +68,12 @@ class Stepper:
         This is also not the case or RP2030-Zeor and RP2350-Zero boards, as a WS2812 RGB led is used.
         """
 
+        self.PIO_pin = pio_pin           # GPIO pin for steps generation and steps count
         self.MAX_FREQUENCY = max_freq    # frequency for the sm1 and sm2 PIO function (150_000_000 on RP2350, 125_000_000 on RP2040 and unrecognized boards)
         self.FREQUENCY = freq            # frequency for the sm0 PIO function
         self.SLOW_INIT = slow_init       # change the visual feedback from the board (led blinking)
-        self.PICO_LED_ONBOARD = 25       # GPIO pin for onboard led in Pico (it doesn't work but it doesn't harm either on other boards...)
-        self.PIO_pin = self.PICO_LED_ONBOARD    # Pico ombo=ard led GPIO pin is assigned to the pin used by PIO to generate the steps
+#         self.PICO_LED_ONBOARD = 25       # GPIO pin for onboard led in Pico (it doesn't work but it doesn't harm either on other boards...)
+#         self.PIO_pin = self.PICO_LED_ONBOARD    # Pico onboard led GPIO pin is assigned to the pin used by PIO to generate the steps
         self.led_onboard = Pin("LED", Pin.OUT)  # "LED" label is used instead of the GPIO pin, for the visual feedback on Pico W and Pico2 W boards
         
         # pre-encode some of the PIO instructions
