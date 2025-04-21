@@ -2,14 +2,14 @@
 
 This code is for RP2040 or RP2350 microprocessors, as it leverages on the PIO feature; Boards with these micros are Raspberry Pi Pico, Pico2, RP2040-Zero, RP2350-Zero, and many others.
 
-I'm working on a project with stepper motors and RP2040 microprocessor and I realized this stepper motor's control (Class) might be useful to other makers.
+I'm working on a project with stepper motors and RP2040 microprocessor and I realized this stepper motor's control (Class) might be useful to others.
 
 
 The overall concept is to predefine the speed and the steps for the stepper, and let it running in open loop ... by trusting it stops once those steps are made!
 
 The precise spinning time is calculated, upfront the stepper activation, allowing to be ready with a new set of instructions for the following run.
 
-Depending on the microprocess used, this implementation is accurate for pulses frequency between 50Hz and 5KHz (RP2040) or between 10Hz and 15KHz (RP2350). The common Nema 17 steppers, with 200 pulses per revolution and controlled with 1/8 microsteps, very likely do not require more than 5KHz in most of the applications.
+Depending on the microprocess used, this implementation is accurate for pulses frequency between 50Hz and 5KHz (RP2040) or between 10Hz and 15KHz (RP2350). The common Nema 17 steppers, with 200 pulses per revolution, controlled with 1/8 microsteps, very likely do not require more than 5KHz in most of the applications.
 
 <br><br>
 
@@ -26,7 +26,7 @@ Depending on the microprocess used, this implementation is accurate for pulses f
 <br><br>
 
 ## Showcasing video:
-Showcase objective: Having the stepper motor stopping at the same position is was at the start.<br>
+Showcase objective: Having the stepper motor stopping at the same position it was at the start.<br>
 
 In the video the stepper motor:
  - makes 52800 steps in total.
@@ -45,7 +45,7 @@ https://youtu.be/ZdNAM-4AH98
  - steppers are 200 pulses/rev, set to 1/8 microstep, therefore 1600 pulses/rev.
  - each motor is controlled by an RP2040-Zero board, running MicroPython.
  - commands (speed, steps) are sent via I2C from a Raspberry Pi to the 3 RP2040-Zero boards.
- - the 3 RP2040-Zero boards are receve independent commands (ca 6ms I2C interaction time per board).
+ - the 3 RP2040-Zero boards receve independent commands (ca 6ms I2C interaction time per board), yet with the same commands in this specific demo.
  - the stepper direction is calculated at RP2040-Zero, by comparing the speed being above/below a threshold (2^16 // 2).
  - the effective speed is calculated at RP2040-Zero, as absolute difference from a threshold (2^16 // 2).
 
